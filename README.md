@@ -8,9 +8,10 @@ This assignment focuses on building a real-time chat application using Socket.io
 You will build a chat application with the following features:
 1. Real-time messaging using Socket.io
 2. User authentication and presence
-3. Multiple chat rooms or private messaging
-4. Real-time notifications
-5. Advanced features like typing indicators and read receipts
+3. Multiple chat rooms
+4. Real-time notifications with the Web Notifications API
+5. Typing indicators
+6. Read receipts
 
 ## Project Structure
 
@@ -69,6 +70,21 @@ Your work will be automatically submitted when you push to your GitHub Classroom
 4. Document your setup process and features in the README.md
 5. Include screenshots or GIFs of your working application
 6. Optional: Deploy your application and add the URLs to your README.md
+
+## Features Implemented
+
+*   **Real-time Messaging:** Send and receive messages in real-time.
+*   **User Presence:** See who is online in the chat room.
+*   **Multiple Chat Rooms:** Create and join different chat rooms.
+*   **Typing Indicators:** See when another user is typing a message.
+*   **Read Receipts:** See who has read your messages.
+*   **Browser Notifications:** Receive browser notifications for new messages when the chat window is not in focus.
+
+## Screenshots
+
+*A screenshot of the login page*
+
+*A screenshot of the chat page with messages and online users*
 
 ## Resources
 

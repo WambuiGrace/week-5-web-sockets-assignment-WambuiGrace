@@ -1,7 +1,8 @@
 // socket.js - Socket.io client setup
 
 import { io } from 'socket.io-client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useNotify } from '../hooks/useNotify';
 
 // Socket.io connection URL
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
@@ -23,10 +24,10 @@ export const useSocket = () => {
   const [typingUsers, setTypingUsers] = useState([]);
 
   // Connect to socket server
-  const connect = (username) => {
+  const connect = (username, room) => {
     socket.connect();
     if (username) {
-      socket.emit('user_join', username);
+      socket.emit('user_join', username, room);
     }
   };
 
@@ -62,10 +63,13 @@ export const useSocket = () => {
     };
 
     // Message events
-    const onReceiveMessage = (message) => {
+    const onReceiveMessage = useCallback((message) => {
       setLastMessage(message);
-      setMessages((prev) => [...prev, message]);
-    };
+      setMessages((prev) => [...prev, { ...message, readBy: [] }]);
+      if (document.hidden) {
+        useNotify(message.sender, { body: message.message });
+      }
+    }, []);
 
     const onPrivateMessage = (message) => {
       setLastMessage(message);
@@ -108,6 +112,20 @@ export const useSocket = () => {
       setTypingUsers(users);
     };
 
+    const onMessageRead = ({ messageId, userId, username }) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) => {
+          if (msg.id === messageId) {
+            return {
+              ...msg,
+              readBy: [...msg.readBy, { userId, username }],
+            };
+          }
+          return msg;
+        })
+      );
+    };
+
     // Register event listeners
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
@@ -117,6 +135,7 @@ export const useSocket = () => {
     socket.on('user_joined', onUserJoined);
     socket.on('user_left', onUserLeft);
     socket.on('typing_users', onTypingUsers);
+    socket.on('message_read_receipt', onMessageRead);
 
     // Clean up event listeners
     return () => {
@@ -128,6 +147,7 @@ export const useSocket = () => {
       socket.off('user_joined', onUserJoined);
       socket.off('user_left', onUserLeft);
       socket.off('typing_users', onTypingUsers);
+      socket.off('message_read_receipt', onMessageRead);
     };
   }, []);
 

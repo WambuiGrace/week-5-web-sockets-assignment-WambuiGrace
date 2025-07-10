@@ -36,21 +36,26 @@ io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`);
 
   // Handle user joining
-  socket.on('user_join', (username) => {
-    users[socket.id] = { username, id: socket.id };
-    io.emit('user_list', Object.values(users));
-    io.emit('user_joined', { username, id: socket.id });
-    console.log(`${username} joined the chat`);
+  socket.on('user_join', (username, room) => {
+    users[socket.id] = { username, id: socket.id, room };
+    socket.join(room);
+    io.to(room).emit('user_list', Object.values(users).filter(u => u.room === room));
+    socket.to(room).emit('user_joined', { username, id: socket.id });
+    console.log(`${username} joined room ${room}`);
   });
 
   // Handle chat messages
   socket.on('send_message', (messageData) => {
+    const user = users[socket.id];
+    if (!user) return;
+
     const message = {
       ...messageData,
       id: Date.now(),
-      sender: users[socket.id]?.username || 'Anonymous',
+      sender: user.username,
       senderId: socket.id,
       timestamp: new Date().toISOString(),
+      room: user.room,
     };
     
     messages.push(message);
@@ -60,7 +65,7 @@ io.on('connection', (socket) => {
       messages.shift();
     }
     
-    io.emit('receive_message', message);
+    io.to(user.room).emit('receive_message', message);
   });
 
   // Handle typing indicator
@@ -95,10 +100,13 @@ io.on('connection', (socket) => {
 
   // Handle disconnection
   socket.on('disconnect', () => {
-    if (users[socket.id]) {
-      const { username } = users[socket.id];
-      io.emit('user_left', { username, id: socket.id });
-      console.log(`${username} left the chat`);
+    const user = users[socket.id];
+    if (user) {
+      const { username, room } = user;
+      io.to(room).emit('user_left', { username, id: socket.id });
+      console.log(`${username} left room ${room}`);
+      delete users[socket.id];
+      io.to(room).emit('user_list', Object.values(users).filter(u => u.room === room));
     }
     
     delete users[socket.id];
@@ -106,6 +114,13 @@ io.on('connection', (socket) => {
     
     io.emit('user_list', Object.values(users));
     io.emit('typing_users', Object.values(typingUsers));
+  });
+
+  socket.on('message_read', (messageId) => {
+    const user = users[socket.id];
+    if (user) {
+      io.to(user.room).emit('message_read_receipt', { messageId, userId: user.id, username: user.username });
+    }
   });
 });
 
