@@ -82,9 +82,9 @@ Your work will be automatically submitted when you push to your GitHub Classroom
 
 ## Screenshots
 
-*A screenshot of the login page*
+![Login page](images/login.png)
 
-*A screenshot of the chat page with messages and online users*
+![Chat page](images/chat.png)
 
 ## Resources
 

@@ -51,6 +51,9 @@ export const useSocket = () => {
     socket.emit('typing', isTyping);
   };
 
+  // Get the notify function from the useNotify hook
+  const notify = useNotify();
+
   // Socket event listeners
   useEffect(() => {
     // Connection events
@@ -63,13 +66,13 @@ export const useSocket = () => {
     };
 
     // Message events
-    const onReceiveMessage = useCallback((message) => {
+    const onReceiveMessage = (message) => {
       setLastMessage(message);
       setMessages((prev) => [...prev, { ...message, readBy: [] }]);
       if (document.hidden) {
-        useNotify(message.sender, { body: message.message });
+        notify(message.sender, { body: message.message });
       }
-    }, []);
+    };
 
     const onPrivateMessage = (message) => {
       setLastMessage(message);
@@ -149,7 +152,7 @@ export const useSocket = () => {
       socket.off('typing_users', onTypingUsers);
       socket.off('message_read_receipt', onMessageRead);
     };
-  }, []);
+  }, [notify]);
 
   return {
     socket,

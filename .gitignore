@@ -1,0 +1,30 @@
+# Node dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Environment variables
+.env
+client/.env
+server/.env
+
+# Build output
+dist/
+build/
+client/dist/
+client/build/
+server/dist/
+server/build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
