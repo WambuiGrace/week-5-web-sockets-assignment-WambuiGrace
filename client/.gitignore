@@ -1,0 +1,13 @@
+.node_modules/
+dist/
+build/
+package-lock.json
+pnpm-lock.yaml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
